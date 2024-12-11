@@ -11,7 +11,7 @@ public class CooldownSystem : MonoBehaviour
     void Update()
     {
         // Check if the player presses the Fire key (space) and cooldown has elapsed
-        if (Input.GetKeyDown(KeyCode.Space) && Time.time >= nextFireTime)
+        if (Input.GetMouseButton(0) && Time.time >= nextFireTime)
         {
             Fire();
         }
