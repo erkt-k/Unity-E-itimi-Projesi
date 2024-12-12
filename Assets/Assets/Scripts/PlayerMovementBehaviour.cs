@@ -40,7 +40,17 @@ public class PlayerMovementBehaviour : MonoBehaviour
 
         transform.Translate(playerSpeed * horizontal * Time.deltaTime, 0, 0);
 
-        //To do
-        // Karakteri ekrana sınırla
+        //Practice Solution
+        float vertical = Input.GetAxis("Vertical");
+        transform.Translate(0, playerSpeed * vertical * Time.deltaTime, 0);
+        float clampedY = Mathf.Clamp(transform.position.y, -1.16f, 3.12f);
+        transform.position = new Vector3(transform.position.x, clampedY, transform.position.z);
+
+        if (transform.position.x < -6.24f) {
+            transform.position = new Vector3(6.24f , transform.position.y, transform.position.z);
+        } else if (transform.position.x > 6.24f) {
+            transform.position = new Vector3(-6.24f, transform.position.y, transform.position.z);
+        }
+        
     }
 }
