@@ -7,6 +7,9 @@ public class PlayerShooterBehaviour : MonoBehaviour
 {
     [SerializeField] private GameObject projectileParent;
     [SerializeField] private GameObject projectilePrefab;  // The projectile prefab
+
+    [SerializeField] private GameObject tripleLaser;
+    private bool isTripleLaserActive = false;
     
     [SerializeField] private float Cooldown = 2f;
     [SerializeField] private float nextFireTime = 0f;    // Tracks when the player can fire next
@@ -22,8 +25,27 @@ public class PlayerShooterBehaviour : MonoBehaviour
     {
         if (Input.GetMouseButton(0) && Time.time >= nextFireTime)
         {
-            Instantiate(projectilePrefab, transform.position, transform.rotation, projectileParent.transform);
-            nextFireTime = Time.time + Cooldown;
+            if (isTripleLaserActive) {
+                Instantiate(tripleLaser, transform.position, transform.rotation, projectileParent.transform);
+                nextFireTime = Time.time + Cooldown;
+            } else {
+                Instantiate(projectilePrefab, transform.position, transform.rotation, projectileParent.transform);
+                nextFireTime = Time.time + Cooldown;
+            }
         }
+    }
+
+    void OnTriggerEnter2D(Collider2D other) {
+        if (other.CompareTag("Triple Laser")) {
+            isTripleLaserActive = true;
+            StartCoroutine(tripleLaserCoroutine());
+        } else if (other.CompareTag("Enemy")) {
+            isTripleLaserActive = false;
+        }
+    }
+
+    IEnumerator tripleLaserCoroutine() {
+        yield return new WaitForSeconds(5f);
+        isTripleLaserActive = false;
     }
 }
