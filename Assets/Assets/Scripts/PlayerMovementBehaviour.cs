@@ -3,16 +3,28 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
+using UnityEngine.UI;
 
 public class PlayerMovementBehaviour : MonoBehaviour
 {
     private Transform trans;
 
-    public float playerSpeed;
+    [SerializeField] private float playerSpeed;
+    [SerializeField] private float speedBoost;
 
     [SerializeField] private int lives = 3;
+    [SerializeField] private List<Sprite> liveImage = new List<Sprite>();
+    [SerializeField] private Image image;
     [SerializeField] private GameObject shield;
+
+    private int score = 0;
+    [SerializeField] private TMPro.TextMeshProUGUI scoreText;
     private bool isShieldActive = false;
+
+    private Animator anim;
+
+    [SerializeField] private AudioSource powerUpSound;
 
     
     /*
@@ -29,7 +41,9 @@ public class PlayerMovementBehaviour : MonoBehaviour
     void Start()
     {
         //trans = GetComponent<Transform>(); // değişken ismi = GetComponent<KomponentTürü>();
-        
+        anim = GetComponent<Animator>();
+        image.sprite = liveImage[lives];
+        scoreText.text = score.ToString();
     }
 
     // Update is called once per frame
@@ -48,6 +62,17 @@ public class PlayerMovementBehaviour : MonoBehaviour
         float horizontal = Input.GetAxis("Horizontal");
         Debug.Log("Horizontal: " + horizontal);
 
+        if(horizontal > 0) {
+            anim.SetBool("isTurningRight", true); //isTurningRight = true;
+            anim.SetBool("isTurningLeft", false); //isTurningLeft = false;
+        } else if (horizontal == 0) {
+            anim.SetBool("isTurningRight", false); //isTurningRight = true;
+            anim.SetBool("isTurningLeft", false); //isTurningLeft = false;
+        } else if (horizontal < 0) {
+            anim.SetBool("isTurningLeft", true);
+            anim.SetBool("isTurningRight", false);
+        }
+
         transform.Translate(playerSpeed * horizontal * Time.deltaTime, 0, 0);
 
         //Practice Solution
@@ -64,18 +89,35 @@ public class PlayerMovementBehaviour : MonoBehaviour
         
     }
 
+    public void IncreaseScore() {
+        score += 50;
+        scoreText.text = score.ToString();
+    }
+
     private void OnTriggerEnter2D(Collider2D other) {
         if (other.CompareTag("Enemy")) {
             if (!(isShieldActive)) {
                 lives--;
+                image.sprite = liveImage[lives];
             } else {
                 isShieldActive = false;
                 shield.SetActive(false);
             }
         } else if (other.CompareTag("Shield")) {
+            powerUpSound.Play();
             shield.SetActive(true);
             isShieldActive = true;
             Destroy(other.gameObject);
-        } 
+        } else if (other.CompareTag("Speed")) {
+            powerUpSound.Play();
+            playerSpeed += speedBoost;
+            StartCoroutine(SpeedBoostCoroutine());
+            Destroy(other.gameObject);
+        }
+    }
+
+    IEnumerator SpeedBoostCoroutine() {
+        yield return new WaitForSeconds(5f);
+        playerSpeed -= speedBoost;
     }
 }

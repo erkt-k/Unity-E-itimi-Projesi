@@ -12,7 +12,9 @@ public class PlayerShooterBehaviour : MonoBehaviour
     private bool isTripleLaserActive = false;
     
     [SerializeField] private float Cooldown = 2f;
-    [SerializeField] private float nextFireTime = 0f;    // Tracks when the player can fire next
+    [SerializeField] private float nextFireTime = 0f; 
+    [SerializeField] private AudioSource laserSource;
+       // Tracks when the player can fire next
 
     // Start is called before the first frame update
     void Start()
@@ -25,6 +27,7 @@ public class PlayerShooterBehaviour : MonoBehaviour
     {
         if (Input.GetMouseButton(0) && Time.time >= nextFireTime)
         {
+            laserSource.Play();
             if (isTripleLaserActive) {
                 Instantiate(tripleLaser, transform.position, transform.rotation, projectileParent.transform);
                 nextFireTime = Time.time + Cooldown;
@@ -39,6 +42,7 @@ public class PlayerShooterBehaviour : MonoBehaviour
         if (other.CompareTag("Triple Laser")) {
             isTripleLaserActive = true;
             StartCoroutine(tripleLaserCoroutine());
+            Destroy(other.gameObject);
         } else if (other.CompareTag("Enemy")) {
             isTripleLaserActive = false;
         }

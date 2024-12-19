@@ -4,11 +4,14 @@ using UnityEngine;
 
 public class EnemyBehavior : MonoBehaviour
 {
-    [SerializeField] private float enemySpeed = -5f; 
+    [SerializeField] private float enemySpeed = -5f;
+    [SerializeField] private Animator anim;
+    [SerializeField] private GameObject player;
     // Start is called before the first frame update
     void Start()
     {
-        
+        anim = GetComponent<Animator>();
+        player = GameObject.FindGameObjectWithTag("Player");
     }
 
     // Update is called once per frame
@@ -30,7 +33,9 @@ public class EnemyBehavior : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other) {
         if (other.CompareTag("Laser")) {    
             enemySpeed = 0;
-            Destroy(this.gameObject);
+            anim.SetBool("isDed", true);
+            player.GetComponent<PlayerMovementBehaviour>().IncreaseScore();
+            Destroy(this.gameObject, 2.38f);
         }
     }
 }
